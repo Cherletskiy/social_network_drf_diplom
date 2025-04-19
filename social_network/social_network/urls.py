@@ -15,8 +15,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+from social_network_app.views import *
+from rest_framework import routers
+from rest_framework_nested.routers import NestedDefaultRouter
+
+router = routers.DefaultRouter()
+router.register(r'posts', PostViewSet, basename='post')
+
+posts_router = NestedDefaultRouter(router, r'posts', lookup='post')
+posts_router.register(r'comments', CommentViewSet, basename='post-comments')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    path('api/', include(router.urls)),
+    path('api/', include(posts_router.urls)),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
