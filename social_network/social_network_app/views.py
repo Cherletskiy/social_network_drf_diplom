@@ -12,7 +12,7 @@ class PostViewSet(ModelViewSet):
     queryset = Post.objects.all().select_related('author').prefetch_related('images', 'likes', 'comments')
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action in ['create', 'update', 'partial_update']:
             return PostCreateSerializer
         if self.action == 'list':
             return PostListSerializer

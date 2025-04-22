@@ -1,0 +1,106 @@
+@TOKEN = 9d543f50d52b5d12951fb15c32bec1ef787013d4
+@HOST = http://127.0.0.1:8000
+
+### list
+GET {{HOST}}/api/posts/
+
+
+### retrieve 
+GET {{HOST}}/api/posts/1/
+
+
+### POST comment
+POST {{HOST}}/api/posts/1/comments/
+Authorization: Token {{TOKEN}}
+Content-Type: application/json
+
+{
+  "text": "Hello!"
+}
+
+### New post
+POST {{HOST}}/api/posts/
+Authorization: Token {{TOKEN}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="text"
+
+Новый пост!!!
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="photo1.jpg"
+Content-Type: image/jpeg
+
+< ./media/post_images/photo1.jpg
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="photo2.jpg"
+Content-Type: image/jpeg
+
+< ./media/post_images/photo2.jpg
+--WebAppBoundary--
+
+
+### action like
+POST {{HOST}}/api/posts/1/like/
+Authorization: Token {{TOKEN}}
+Content-Type: application/json
+
+
+### update text 
+PUT {{HOST}}/api/posts/1/
+Authorization: Token {{TOKEN}}
+Content-Type: application/json
+
+{
+  "text": "Обновлённый текст поста"
+}
+
+
+### put post (text + images)
+PUT {{HOST}}/api/posts/5/
+Authorization: Token {{TOKEN}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="text"
+
+Обновленный текст
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="photo3.jpg"
+Content-Type: image/jpeg
+
+< ./media/post_images/photo3.jpg
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="photo4.jpg"
+Content-Type: image/jpeg
+
+< ./media/post_images/photo4.jpg
+--WebAppBoundary--
+
+
+### patch text
+PATCH {{HOST}}/api/posts/1/
+Authorization: Token {{TOKEN}}
+Content-Type: application/json
+
+{
+  "text": "Частично обновлённый текст"
+}
+
+
+### patch image 
+PATCH {{HOST}}/api/posts/5/
+Authorization: Token {{TOKEN}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="photo1.jpg"
+Content-Type: image/jpeg
+
+< ./media/post_images/photo1.jpg
+--WebAppBoundary--
+
+
+### delete post 
+DELETE {{HOST}}/api/posts/4/
+Authorization: Token {{TOKEN}}

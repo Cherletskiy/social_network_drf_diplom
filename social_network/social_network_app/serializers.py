@@ -51,6 +51,11 @@ class PostListSerializer(serializers.ModelSerializer):
 class PostCreateSerializer(serializers.ModelSerializer):
     images = serializers.ListField(child=serializers.ImageField(), write_only=True, required=False)
 
+    class Meta:
+        model = Post
+        fields = ['text', 'images']
+        read_only_fields = ['author']
+
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
         user = self.context['request'].user
@@ -61,9 +66,18 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
         return post
 
-    class Meta:
-        model = Post
-        fields = ['text', 'images']
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+
+        if images_data is not None:
+            instance.images.all().delete()
+            self._create_images(instance, images_data)
+
+        return super().update(instance, validated_data)
+
+    def _create_images(self, post, images_data):
+        for image_data in images_data:
+            PostImage.objects.create(post=post, image=image_data)
 
 
 class PostDetailSerializer(PostListSerializer):
