@@ -49,7 +49,16 @@ class PostListSerializer(serializers.ModelSerializer):
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
-    images = serializers.ListField(child=serializers.ImageField(), write_only=True, required=False)
+    images = serializers.ListField(
+        child=serializers.ImageField(
+            max_length=10 * 1024 * 1024,
+            allow_empty_file=False,
+            use_url=False
+        ),
+        write_only=True,
+        required=False,
+        max_length=5
+    )
 
     class Meta:
         model = Post
