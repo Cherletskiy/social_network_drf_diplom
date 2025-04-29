@@ -122,3 +122,34 @@ Content-Type: image/jpeg
 - `MEDIA_ROOT` - Папка для загружаемых файлов
 - `MEDIA_URL` - URL для доступа к медиафайлам
 - `PAGE_SIZE` - Количество постов на странице
+
+
+## Тесты
+
+### Установка тестовых зависимостей
+```bash
+pip install pytest pytest-django
+```
+
+### Настройка тестов
+
+- В корне проекта должен находиться файл `pytest.ini` со следующей конфигурацией:
+```ini
+[pytest]
+DJANGO_SETTINGS_MODULE = social_network.settings
+python_files = tests.py test_*.py *_tests.py
+```
+
+- Тесты расположены в директории `tests/` и разделены по файлам:
+   - `test_models.py`: Тесты для моделей (`Post`, `PostImage`, `Comment`, `Like`).
+   - `test_serializers.py`: Тесты для сериализаторов (`PostListSerializer`, `PostCreateSerializer`, `CommentSerializer`).
+   - `test_views.py`: Тесты для представлений (`PostViewSet`, `CommentViewSet`).
+   - `test_permissions.py`: Тесты для пользовательских разрешений (`IsOwnerOrAdmin`).
+
+### Запуск тестов
+
+Для запуска всех тестов выполните следующую команду в корне проекта:
+
+```bash
+pytest -v
+```

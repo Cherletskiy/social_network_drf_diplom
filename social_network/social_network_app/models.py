@@ -14,6 +14,9 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created_date']
 
+    def __str__(self):
+        return self.text[:50]
+
 
 class PostImage(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
