@@ -73,7 +73,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
         ),
         write_only=True,
         required=False,
-        max_length=5
+        max_length=10
     )
 
     class Meta:
