@@ -78,19 +78,28 @@ python manage.py runserver
 
 ### Создание поста с изображениями
 ```http
-POST /api/posts/
+POST {{HOST}}/api/posts/
+Authorization: Token {{TOKEN}}
 Content-Type: multipart/form-data; boundary=WebAppBoundary
-Authorization: Token ваш_токен
 
 --WebAppBoundary
 Content-Disposition: form-data; name="text"
 
-Мой новый пост
+Новый пост!!!
 --WebAppBoundary
-Content-Disposition: form-data; name="images"; filename="photo1.jpg"
+Content-Disposition: form-data; name="location"
+
+45.05515709416117, 39.01727907829566
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="photo3.jpg"
 Content-Type: image/jpeg
 
-< ./photo1.jpg
+< ./media/post_images/photo3.jpg
+--WebAppBoundary
+Content-Disposition: form-data; name="images"; filename="gif1.gif"
+Content-Type: image/gif
+
+< ./media/post_images/gif1.gif
 --WebAppBoundary--
 ```
 

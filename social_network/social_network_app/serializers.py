@@ -1,6 +1,9 @@
 from django.contrib.auth.models import Group, User
 from rest_framework import serializers
 
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+from geopy.geocoders import Nominatim
+
 from .models import Post, Comment, Like, PostImage
 
 
@@ -32,11 +35,12 @@ class PostListSerializer(serializers.ModelSerializer):
     comments_count = serializers.IntegerField(source='comments.count', read_only=True)
     likes_count = serializers.IntegerField(source='likes.count', read_only=True)
     is_liked = serializers.SerializerMethodField()
+    location_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = [
-            'id', 'author', 'author_username', 'text', 'created_date',
+            'id', 'author', 'author_username', 'location_name', 'text', 'created_date',
             'images', 'comments_count', 'likes_count', 'is_liked'
         ]
         read_only_fields = ['author', 'created_date']
@@ -46,6 +50,18 @@ class PostListSerializer(serializers.ModelSerializer):
         if user.is_authenticated:
             return obj.likes.filter(user=user).exists()
         return False
+
+    def get_location_name(self, obj):
+        if not obj.location:
+            return None
+
+        try:
+            geolocator = Nominatim(user_agent='myGeocoder')
+            location = geolocator.reverse(obj.location.split(','))
+            return location.address if location else None
+        except (GeocoderTimedOut, GeocoderServiceError):
+            return obj.location
+
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
@@ -62,8 +78,21 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['text', 'images']
+        fields = ['text', 'images', 'location']
         read_only_fields = ['author']
+
+    def validate_location(self, value):
+        if not value:
+            return None
+
+        try:
+            geolocator = Nominatim(user_agent='myGeocoder')
+            location = geolocator.geocode(value)
+            if not location:
+                raise serializers.ValidationError("Не удалось определить координаты для указанного места")
+            return f"{location.latitude}, {location.longitude}"
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            raise serializers.ValidationError(f"Ошибка при указании локации {e}. Попробуйте иные координаты или оставьте поле пустым")
 
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
