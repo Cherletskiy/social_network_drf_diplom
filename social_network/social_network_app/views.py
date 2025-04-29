@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Post, Comment, Like
 from .serializers import PostListSerializer, PostDetailSerializer, PostCreateSerializer, CommentSerializer
+from .permissions import IsOwnerOrAdmin
 
 # Create your views here.
 
@@ -18,6 +19,13 @@ class PostViewSet(ModelViewSet):
             return PostListSerializer
         return PostDetailSerializer
 
+    def get_permissions(self):
+        if self.action == 'create':
+            self.permission_classes = [IsAuthenticated]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            self.permission_classes = [IsOwnerOrAdmin]
+        return super().get_permissions()
+
     @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
         post = self.get_object()
@@ -29,6 +37,7 @@ class PostViewSet(ModelViewSet):
 
         return self.retrieve(request, pk)
 
+
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -36,5 +45,12 @@ class CommentViewSet(ModelViewSet):
     def get_queryset(self):
         post_id = self.kwargs['post_pk']
         return self.queryset.filter(post_id=post_id)
+
+    def get_permissions(self):
+        if self.action == 'create':
+            self.permission_classes = [IsAuthenticated]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            self.permission_classes = [IsOwnerOrAdmin]
+        return super().get_permissions()
 
 
